@@ -114,7 +114,7 @@ namespace ChatSharp
         /// <summary>
         /// Information about the server we are connected to. Servers may not send us this information,
         /// but it's required for ChatSharp to function, so by default this is a guess. Handle
-        /// IrcClient.ServerInfoRecieved if you'd like to know when it's populated with real information.
+        /// IrcClient.ServerInfoReceived if you'd like to know when it's populated with real information.
         /// </summary>
         public ServerInfo ServerInfo { get; set; }
         /// <summary>
@@ -223,7 +223,7 @@ namespace ChatSharp
                 ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
             }
 
-            NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataRecieved, null);
+            NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataReceived, null);
             // Write login info
             if (!string.IsNullOrEmpty(User.Password))
                 SendRawMessage("PASS {0}", User.Password);
@@ -233,7 +233,7 @@ namespace ChatSharp
             PingTimer.Start();
         }
 
-        private void DataRecieved(IAsyncResult result)
+        private void DataReceived(IAsyncResult result)
         {
             if (NetworkStream == null)
             {
@@ -271,12 +271,12 @@ namespace ChatSharp
                 Array.Copy(ReadBuffer, messageLength, ReadBuffer, 0, length - messageLength);
                 length -= messageLength;
             }
-            NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataRecieved, null);
+            NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataReceived, null);
         }
 
         private void HandleMessage(string rawMessage)
         {
-            OnRawMessageRecieved(new RawMessageEventArgs(rawMessage, false));
+            OnRawMessageReceived(new RawMessageEventArgs(rawMessage, false));
             var message = new IrcMessage(rawMessage);
             if (Handlers.ContainsKey(message.Command.ToUpper()))
                 Handlers[message.Command.ToUpper()](this, message);
@@ -373,60 +373,60 @@ namespace ChatSharp
             if (RawMessageSent != null) RawMessageSent(this, e);
         }
         /// <summary>
-        /// Occurs when a raw message recieved.
+        /// Occurs when a raw message Received.
         /// </summary>
-        public event EventHandler<RawMessageEventArgs> RawMessageRecieved;
-        internal void OnRawMessageRecieved(RawMessageEventArgs e)
+        public event EventHandler<RawMessageEventArgs> RawMessageReceived;
+        internal void OnRawMessageReceived(RawMessageEventArgs e)
         {
-            if (RawMessageRecieved != null) RawMessageRecieved(this, e);
+            if (RawMessageReceived != null) RawMessageReceived(this, e);
         }
         /// <summary>
-        /// Occurs when a notice recieved.
+        /// Occurs when a notice Received.
         /// </summary>
-        public event EventHandler<IrcNoticeEventArgs> NoticeRecieved;
-        internal void OnNoticeRecieved(IrcNoticeEventArgs e)
+        public event EventHandler<IrcNoticeEventArgs> NoticeReceived;
+        internal void OnNoticeReceived(IrcNoticeEventArgs e)
         {
-            if (NoticeRecieved != null) NoticeRecieved(this, e);
+            if (NoticeReceived != null) NoticeReceived(this, e);
         }
         /// <summary>
         /// Occurs when the server has sent us part of the MOTD.
         /// </summary>
-        public event EventHandler<ServerMOTDEventArgs> MOTDPartRecieved;
-        internal void OnMOTDPartRecieved(ServerMOTDEventArgs e)
+        public event EventHandler<ServerMOTDEventArgs> MOTDPartReceived;
+        internal void OnMOTDPartReceived(ServerMOTDEventArgs e)
         {
-            if (MOTDPartRecieved != null) MOTDPartRecieved(this, e);
+            if (MOTDPartReceived != null) MOTDPartReceived(this, e);
         }
         /// <summary>
-        /// Occurs when the entire server MOTD has been recieved.
+        /// Occurs when the entire server MOTD has been Received.
         /// </summary>
-        public event EventHandler<ServerMOTDEventArgs> MOTDRecieved;
-        internal void OnMOTDRecieved(ServerMOTDEventArgs e)
+        public event EventHandler<ServerMOTDEventArgs> MOTDReceived;
+        internal void OnMOTDReceived(ServerMOTDEventArgs e)
         {
-            if (MOTDRecieved != null) MOTDRecieved(this, e);
+            if (MOTDReceived != null) MOTDReceived(this, e);
         }
         /// <summary>
-        /// Occurs when a private message recieved. This can be a channel OR a user message.
+        /// Occurs when a private message Received. This can be a channel OR a user message.
         /// </summary>
-        public event EventHandler<PrivateMessageEventArgs> PrivateMessageRecieved;
-        internal void OnPrivateMessageRecieved(PrivateMessageEventArgs e)
+        public event EventHandler<PrivateMessageEventArgs> PrivateMessageReceived;
+        internal void OnPrivateMessageReceived(PrivateMessageEventArgs e)
         {
-            if (PrivateMessageRecieved != null) PrivateMessageRecieved(this, e);
+            if (PrivateMessageReceived != null) PrivateMessageReceived(this, e);
         }
         /// <summary>
-        /// Occurs when a message is recieved in an IRC channel.
+        /// Occurs when a message is Received in an IRC channel.
         /// </summary>
-        public event EventHandler<PrivateMessageEventArgs> ChannelMessageRecieved;
-        internal void OnChannelMessageRecieved(PrivateMessageEventArgs e)
+        public event EventHandler<PrivateMessageEventArgs> ChannelMessageReceived;
+        internal void OnChannelMessageReceived(PrivateMessageEventArgs e)
         {
-            if (ChannelMessageRecieved != null) ChannelMessageRecieved(this, e);
+            if (ChannelMessageReceived != null) ChannelMessageReceived(this, e);
         }
         /// <summary>
-        /// Occurs when a message is recieved from a user.
+        /// Occurs when a message is Received from a user.
         /// </summary>
-        public event EventHandler<PrivateMessageEventArgs> UserMessageRecieved;
-        internal void OnUserMessageRecieved(PrivateMessageEventArgs e)
+        public event EventHandler<PrivateMessageEventArgs> UserMessageReceived;
+        internal void OnUserMessageReceived(PrivateMessageEventArgs e)
         {
-            if (UserMessageRecieved != null) UserMessageRecieved(this, e);
+            if (UserMessageReceived != null) UserMessageReceived(this, e);
         }
         /// <summary>
         /// Raised if the nick you've chosen is in use. By default, ChatSharp will pick a
@@ -464,10 +464,10 @@ namespace ChatSharp
         /// <summary>
         /// Occurs when we have received the list of users present in a channel.
         /// </summary>
-        public event EventHandler<ChannelEventArgs> ChannelListRecieved;
-        internal void OnChannelListRecieved(ChannelEventArgs e)
+        public event EventHandler<ChannelEventArgs> ChannelListReceived;
+        internal void OnChannelListReceived(ChannelEventArgs e)
         {
-            if (ChannelListRecieved != null) ChannelListRecieved(this, e);
+            if (ChannelListReceived != null) ChannelListReceived(this, e);
         }
         /// <summary>
         /// Occurs when we have received the topic of a channel.
@@ -488,10 +488,10 @@ namespace ChatSharp
         /// <summary>
         /// Occurs when we receive server info (such as max nick length).
         /// </summary>
-        public event EventHandler<SupportsEventArgs> ServerInfoRecieved;
-        internal void OnServerInfoRecieved(SupportsEventArgs e)
+        public event EventHandler<SupportsEventArgs> ServerInfoReceived;
+        internal void OnServerInfoReceived(SupportsEventArgs e)
         {
-            if (ServerInfoRecieved != null) ServerInfoRecieved(this, e);
+            if (ServerInfoReceived != null) ServerInfoReceived(this, e);
         }
         /// <summary>
         /// Occurs when a user is kicked.
